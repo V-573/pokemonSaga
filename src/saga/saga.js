@@ -1,5 +1,6 @@
 import {put, call, takeEvery} from 'redux-saga/effects'
-import { failedFetch, fetchPokemons, loadingPokemons } from '../reducer/pokemonSlice'
+import { failedFetch, fetchPokemons, loadingPokemons,  setSelectedPokemon} from '../reducer/pokemonSlice'
+import { pokemonSlice } from '../reducer/pokemonSlice'
 
 // servicio traer los datos de la API de pokemons
 
@@ -28,9 +29,38 @@ function* getPokemons(action){
 
 }
 
+function* getPokemonDetails(action) {
+
+    console.log('quiero ver como llega el payload', action.payload)
+    try {
+      const data = yield call(() =>
+        fetch(`https://pokeapi.co/api/v2/pokemon/${action.payload}`).then(res => res.json())
+      )
+
+   // 🔍 Aquí ves la data completa que trae la API
+   console.log('📦 Data del Pokémon desde la API:', data)
+
+
+      yield put(pokemonSlice.actions.setSelectedPokemon(data))
+    } catch (error) {
+      console.error('Error fetching details', error)
+    }
+  }
+
+
+
+
 // saga principal para observar la accion de getPokemons
-function* watchGetPokemons(){
+export function* watchGetPokemons(){
     yield takeEvery('pokemon/fetchingPokemons', getPokemons)
 }
 
-export default watchGetPokemons;
+
+// saga adicional para observar cada pokemon de getPokemonsDetails
+export function* watchGetPokemonDetails() {
+    yield takeEvery('pokemon/fetchPokemonDetails', getPokemonDetails)
+  }
+
+  
+ 
+  

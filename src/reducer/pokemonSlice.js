@@ -23,11 +23,15 @@ export const pokemonSlice = createSlice({
         failedFetch: (state, action) =>{
             state.isLoading = false;
             state.error = action.payload.error
-        }
+        },
+        setSelectedPokemon: (state, action) => {
+            console.log('📥 action.payload recibido en reducer:', action.payload)
+            state.selectedPokemon = action.payload
+          }
     }
 })
 
-export const {loadingPokemons, fetchPokemons, failedFetch} = pokemonSlice.actions   
+export const {loadingPokemons, fetchPokemons, failedFetch,  setSelectedPokemon} = pokemonSlice.actions   
 
 export const fetchingPokemons = createAction('pokemon/fetchingPokemons') //Sirve para disparar una intención desde el componente, que será escuchada por Redux-Saga, no por el reducer
 
