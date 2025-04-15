@@ -51,6 +51,28 @@ const Pokemons = () => {
 
       <button onClick={() => setLocalPage(localPage + 1)}>NEXT PAGE</button>
 
+
+{/* desplegar lista de favoritos: */}
+
+<h2>⭐ Mis Favoritos</h2>
+{favoritos.length === 0 && <p>No tienes favoritos aún.</p>}
+<div>
+  {favoritos.map((name) => (
+    <div key={name} style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+      <p
+        onClick={() => dispatch(fetchPokemonDetails(name))}
+        style={{ cursor: 'pointer', margin: 0 }}
+      >
+        {name}
+      </p>
+      <button onClick={() => handleToggleFavorite(name)}>★ Quitar</button>
+    </div>
+  ))}
+</div>
+
+
+
+
       {/* Mostrar detalle del Pokémon */}
       {selectedPokemon && (
         <div>
