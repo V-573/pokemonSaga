@@ -11,6 +11,7 @@ export const pokemonSlice = createSlice({
         error: null,
         selectedPokemon: null, // detalls de un nuevo pokemon
         favoritos:[],
+        searchResults: [], // ✅ nueva propiedad para resultados de búsqueda
     },
     reducers:{
         loadingPokemons: (state)=> {
@@ -40,13 +41,17 @@ toggleFavorite: (state, action) => {
   },
   setFavoritos: (state, action) => {
     state.favoritos = action.payload;
+  },
+// reducer para guardar los resultados de la busqueda
+  setSearchResults: (state, action) => {
+    state.searchResults = action.payload
   }
 
 
     }
 })
 
-export const {loadingPokemons, fetchPokemons, failedFetch,  setSelectedPokemon, toggleFavorite, setFavoritos} = pokemonSlice.actions   
+export const {loadingPokemons, fetchPokemons, failedFetch,  setSelectedPokemon, toggleFavorite, setFavoritos, setSearchResults } = pokemonSlice.actions   
 
 export const fetchingPokemons = createAction('pokemon/fetchingPokemons') //Sirve para disparar una intención desde el componente, que será escuchada por Redux-Saga, no por el reducer
 
@@ -55,3 +60,5 @@ export const fetchPokemonDetails = createAction('pokemon/fetchPokemonDetails')
 
 export const toggleFavoriteSaga= createAction('pokemon/toggleFavoriteSaga');
 export const loadFavoritos = createAction('pokemon/loadFavoritos');
+export const searchPokemonByName = createAction('pokemon/searchByName');
+export const searchPokemonByNameLista = createAction('pokemon/searchByNameLista');

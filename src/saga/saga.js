@@ -1,11 +1,12 @@
-import { put, call, takeEvery, select } from "redux-saga/effects";
+import { put, call, takeEvery, select, delay, takeLatest } from "redux-saga/effects";
 import {
   failedFetch,
   fetchPokemons,
   loadingPokemons,
   setSelectedPokemon,
   toggleFavorite,
-  setFavoritos
+  setFavoritos,
+   setSearchResults,
 } from "../reducer/pokemonSlice";
 
 import { pokemonSlice } from "../reducer/pokemonSlice";
@@ -15,6 +16,43 @@ import {
   fetchPokemonsFromAPI,
 } from "../services/pokemonService";
 
+//funcion para ampliar lista de busqueda y no en detalle
+function* searchByNameSaga(action) {
+  const query = action.payload.toLowerCase()
+
+  try {
+    yield delay(500) // debounce de 500ms
+    const response = yield call(() => 
+      fetch(`https://pokeapi.co/api/v2/pokemon/${query}`).then(res => res.json())
+    )
+
+    yield put(setSearchResults([response])) // ✅ guardamos en lista
+  } catch (error) {
+    // Si no existe, limpia la lista de resultados
+    yield put(setSearchResults([]))
+  }
+}
+
+
+
+//funcion para buscar por medio de un input el pokemon
+function* searchPokemon(action) {
+  try {
+    yield delay(500) // debounce
+
+    const response = yield call(() =>
+      fetch(`https://pokeapi.co/api/v2/pokemon/${action.payload.toLowerCase()}`)
+        .then(res => {
+          if (!res.ok) throw new Error('No se encontró el Pokémon')
+          return res.json()
+        })
+    )
+
+    yield put(setSelectedPokemon(response))
+  } catch (error) {
+    yield put(failedFetch({ error: error.message }))
+  }
+}
 
 //guardar en el local storage
 function* handleToggleFavorite(action){
@@ -87,8 +125,14 @@ export function* watchFavorites(){
 }
 
 
+//watch para busqueda de pokemon por el input
+export function* watchSearchPokemon() {
+  yield takeLatest('pokemon/searchByName', searchPokemon)
+}
 
-
+export function* watchSearchByName() {
+  yield takeLatest('pokemon/searchByNameLista', searchByNameSaga)
+}
 
 // function* getPokemonDetails(action) {
 // se realizo con .then() y se va a cambiar para usarlo con await/async
