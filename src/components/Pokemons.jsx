@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchingPokemons } from "../reducer/pokemonSlice";
-import { fetchPokemonDetails } from "../reducer/pokemonSlice";
+import { fetchingPokemons, fetchPokemonDetails, toggleFavoriteSaga, loadFavoritos} from "../reducer/pokemonSlice";
 
 const Pokemons = () => {
   const [localPage, setLocalPage] = useState(0);
@@ -11,28 +10,43 @@ const Pokemons = () => {
     pokemons = [],
     error,
     selectedPokemon,
+    favoritos,
   } = useSelector((state) => state.pokemons);
   const dispatch = useDispatch();
   useEffect(() => {
     dispatch(fetchingPokemons(localPage)); // esta despachando una accion redux con el formato:
     //{  type: 'pokemon/fetchingPokemons', payload: 0  // o el valor actual de localPage}
+    dispatch(loadFavoritos()); //carga favoritos
+
   }, [localPage, dispatch]);
+
+  const handleToggleFavorite = (name) => {
+    dispatch(toggleFavoriteSaga(name));
+  };
+
 
   return (
     <div>
+
       <h1>Pokemons</h1>
       {error && <p>algo a salido mal</p>}
       {isLoading && <p>cargando...</p>}
       <div>
         {pokemons.map((pokemon) => (
-          <p
+        <div  key={pokemon.name} style={{ display: 'flex', alignItems: 'center', gap: '10px' }} > 
+        
+        <p
             key={pokemon.name}
             onClick={() => dispatch(fetchPokemonDetails(pokemon.name))}
             style={{ cursor: "pointer" }}
           >
             {pokemon.name}
           </p>
-        ))}
+          <button onClick={() => handleToggleFavorite(pokemon.name)}>
+      {favoritos.includes(pokemon.name) ? '★' : '☆'}
+    </button>
+          </div> 
+          ))}
       </div>
 
       <button onClick={() => setLocalPage(localPage + 1)}>NEXT PAGE</button>

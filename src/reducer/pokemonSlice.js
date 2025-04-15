@@ -10,6 +10,7 @@ export const pokemonSlice = createSlice({
         isLoading: false,
         error: null,
         selectedPokemon: null, // detalls de un nuevo pokemon
+        favoritos:[],
     },
     reducers:{
         loadingPokemons: (state)=> {
@@ -27,13 +28,30 @@ export const pokemonSlice = createSlice({
         setSelectedPokemon: (state, action) => {
             console.log('📥 action.payload recibido en reducer:', action.payload)
             state.selectedPokemon = action.payload
-          }
+          },
+//favoritos:
+toggleFavorite: (state, action) => {
+    const name = action.payload;
+    if (state.favoritos.includes(name)) {
+      state.favoritos = state.favoritos.filter(fav => fav !== name);
+    } else {
+      state.favoritos.push(name);
+    }
+  },
+  setFavoritos: (state, action) => {
+    state.favoritos = action.payload;
+  }
+
+
     }
 })
 
-export const {loadingPokemons, fetchPokemons, failedFetch,  setSelectedPokemon} = pokemonSlice.actions   
+export const {loadingPokemons, fetchPokemons, failedFetch,  setSelectedPokemon, toggleFavorite, setFavoritos} = pokemonSlice.actions   
 
 export const fetchingPokemons = createAction('pokemon/fetchingPokemons') //Sirve para disparar una intención desde el componente, que será escuchada por Redux-Saga, no por el reducer
 
 //mostrar detalles de un pokemon
 export const fetchPokemonDetails = createAction('pokemon/fetchPokemonDetails')
+
+export const toggleFavoriteSaga= createAction('pokemon/toggleFavoriteSaga');
+export const loadFavoritos = createAction('pokemon/loadFavoritos');

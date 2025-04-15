@@ -1,15 +1,46 @@
-import { put, call, takeEvery } from "redux-saga/effects";
+import { put, call, takeEvery, select } from "redux-saga/effects";
 import {
   failedFetch,
   fetchPokemons,
   loadingPokemons,
   setSelectedPokemon,
+  toggleFavorite,
+  setFavoritos
 } from "../reducer/pokemonSlice";
+
 import { pokemonSlice } from "../reducer/pokemonSlice";
+
 import {
   fetchPokemonDetailsFromAPI,
   fetchPokemonsFromAPI,
 } from "../services/pokemonService";
+
+
+//guardar en el local storage
+function* handleToggleFavorite(action){
+  const name = action.payload;
+
+  // 1. toggle en el estado 
+  yield put(toggleFavorite(name));
+
+  //2. obtener favoritos actualizados del estado
+  const favoritos = yield select(state => state.pokemons.favoritos)
+
+  //3. guardar en el localStorage
+  yield call([localStorage, 'setItem'], 'favoritos', JSON.stringify(favoritos));
+
+}
+
+//cargar favoritos al iniciar la app
+function* handleLoadFavorites(){
+  const stored = yield call([localStorage, 'getItem'], 'favoritos' );
+  if(stored){
+    const parsed = JSON.parse(stored);
+    yield put(setFavoritos(parsed));
+  }
+}
+
+
 
 // Saga para obtener los datos
 function* getPokemons(action) {
@@ -26,6 +57,8 @@ function* getPokemons(action) {
   }
 }
 
+
+// Saga para obtener informacion de pokemon seleccionado
 function* getPokemonDetails(action) {
   // se realizo con .then() y se va a cambiar para usarlo con await/async
 
@@ -45,6 +78,12 @@ export function* watchGetPokemons() {
 // saga adicional para observar cada pokemon de getPokemonsDetails
 export function* watchGetPokemonDetails() {
   yield takeEvery("pokemon/fetchPokemonDetails", getPokemonDetails);
+}
+
+// watch para favoritos
+export function* watchFavorites(){
+  yield takeEvery('pokemon/toggleFavoriteSaga', handleToggleFavorite);
+  yield takeEvery('pokemon/loadFavoritos', handleLoadFavorites);
 }
 
 
